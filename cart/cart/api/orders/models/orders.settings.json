@@ -1,0 +1,24 @@
+{
+  "kind": "collectionType",
+  "collectionName": "orders",
+  "info": {
+    "name": "Orders"
+  },
+  "options": {
+    "increments": true,
+    "timestamps": true,
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "orderDate": {
+      "type": "date"
+    },
+    "totalItems": {
+      "type": "integer"
+    },
+    "shippingCost": {
+      "type": "decimal"
+    }
+  }
+}
