@@ -1,9 +1,9 @@
 // simulate getting products from DataBase
 const products = [
-  {id:0, name: "Apples", country: "Italy", cost: 3, instock: 10 },
-  {id:1, name: "Oranges", country: "Spain", cost: 4, instock: 3 },
-  {id:2, name: "Beans", country: "USA", cost: 2, instock: 5 },
-  {id:3, name: "Cabbage", country: "USA", cost: 1, instock: 8 },
+  { name: "Apples_:", country: "Italy", cost: 3, instock: 10 },
+  { name: "Oranges:", country: "Spain", cost: 4, instock: 3 },
+  { name: "Beans__:", country: "USA", cost: 2, instock: 5 },
+  { name: "Cabbage:", country: "USA", cost: 1, instock: 8 },
 ];
 //=========Cart=============
 const Cart = (props) => {
@@ -23,9 +23,9 @@ const useDataApi = (initialUrl, initialData) => {
     isError: false,
     data: initialData,
   });
-  
+  console.log(`useDataApi called`);
   useEffect(() => {
-   
+    console.log("useEffect Called");
     let didCancel = false;
     const fetchData = async () => {
       dispatch({ type: "FETCH_INIT" });
@@ -78,8 +78,6 @@ const Products = (props) => {
   const [items, setItems] = React.useState(products);
   const [cart, setCart] = React.useState([]);
   const [total, setTotal] = React.useState(0);
-  const [zeroInCart, setZeroInCart] = React.useState(true);
-  const [totalSpent, setTotalSpent] = React.useState(0);
   const {
     Card,
     Accordion,
@@ -99,46 +97,36 @@ const Products = (props) => {
       data: [],
     }
   );
-
+  console.log(`Rendering Products ${JSON.stringify(data)}`);
+  // Fetch Data
   const addToCart = (e) => {
     let name = e.target.name;
     let item = items.filter((item) => item.name == name);
-    item[0].instock -= 1;
-    // console.log("item:",item)
-    // console.log(`add to Cart ${JSON.stringify(item)}`);
-    // console.log(name, e.target.id)
-    // console.log("id of clicked", e.target.id)
-    // console.log("total items",items)
+    console.log(`add to Cart ${JSON.stringify(item)}`);
     setCart([...cart, ...item]);
-    setZeroInCart(false);
-    doFetch(query);
+    //doFetch(query);
   };
   const deleteCartItem = (index) => {
     let newCart = cart.filter((item, i) => index != i);
     setCart(newCart);
   };
-  
+  const photos = ["apple.png", "orange.png", "beans.png", "cabbage.png"];
 
   let list = items.map((item, index) => {
-   let valid = false
-    if(items[index].instock <= 0){
-     valid=true;
-    } ;
-  
-    let n = index + Math.floor(Math.random() * 1000);
-    let url = "https://picsum.photos/id/" + n + "/50/50";
+    //let n = index + 1049;
+    //let url = "https://picsum.photos/id/" + n + "/50/50";
 
     return (
-    
       <li key={index}>
-        <Image src={url} width={70} roundedCircle></Image>
-        <Button onClick={addToCart} disabled={valid} name={item.name} id={item.id}variant="primary" size="large">
-          {item.name}:${item.cost}<hr/>left in stock:{item.instock}
+        <Image src={photos[index % 4]} width={70} roundedCircle></Image>
+        <Button variant="primary" size="large">
+          {item.name}:{item.cost}
         </Button>
+        <input name={item.name} type="submit" onClick={addToCart}></input>
       </li>
     );
   });
-   let cartList = cart.map((item, index) => {
+  let cartList = cart.map((item, index) => {
     return (
       <Card key={index}>
         <Card.Header>
@@ -147,10 +135,11 @@ const Products = (props) => {
           </Accordion.Toggle>
         </Card.Header>
         <Accordion.Collapse
+          onClick={() => deleteCartItem(index)}
           eventKey={1 + index}
         >
           <Card.Body>
-            $ {item.cost} from {item.country} <Button onClick={() => deleteCartItem(index)}>Delete from cart</Button>
+            $ {item.cost} from {item.country}
           </Card.Body>
         </Accordion.Collapse>
       </Card>
@@ -173,27 +162,17 @@ const Products = (props) => {
     let costs = cart.map((item) => item.cost);
     const reducer = (accum, current) => accum + current;
     let newTotal = costs.reduce(reducer, 0);
-    console.log(newTotal)
+    console.log(`total updated to ${newTotal}`);
     return newTotal;
   };
- 
- 
   const restockProducts = (url) => {
     doFetch(url);
     let newItems = data.map((item) => {
-      let {id, name,country,cost,instock} = item;
-      return {id, name,country,cost,instock};
+      let { name, country, cost, instock } = item;
+      return { name, country, cost, instock };
     });
     setItems([...items, ...newItems]);
   };
-
-  
-  const emptyCart = () => {
-    setTotalSpent(totalSpent + finalList().total);
-    setCart([])
-    setZeroInCart(true);
-  }
-  
 
   return (
     <Container>
@@ -208,11 +187,8 @@ const Products = (props) => {
         </Col>
         <Col>
           <h1>CheckOut </h1>
-          <Button disabled={zeroInCart} onClick={emptyCart}>CheckOut $ {finalList().total}</Button>
-          <div> {finalList().total > 0 && finalList().final}</div>
-        </Col>
-        <Col>
-        <div>Total spent on groceries:${totalSpent}</div>
+          <Button onClick={checkOut}>CheckOut $ {finalList().total}</Button>
+          <div> {finalList().total > 0 && finalList().final} </div>
         </Col>
       </Row>
       <Row>
